@@ -1,10 +1,15 @@
 package com.employee.salary_management;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,11 +20,17 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.employee.salary_management.constant.ApiError;
 import com.employee.salary_management.controller.UserController;
+import com.employee.salary_management.dto.EmployeeDTO;
+import com.employee.salary_management.exception.ErrorResponse;
 import com.employee.salary_management.mapper.EmployeeMapper;
+import com.employee.salary_management.model.Employee;
 import com.employee.salary_management.service.CSVDataProcessingService;
 import com.employee.salary_management.service.EmployeeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(controllers = UserController.class)
 public class UserControllerTest {
@@ -36,6 +47,16 @@ public class UserControllerTest {
 	@MockBean
 	EmployeeMapper employeeMapper;
 
+	private EmployeeDTO employeeDTO;
+	private static final String id = "e003";
+
+	@BeforeEach
+	public void preapreTest() {
+		employeeDTO = new EmployeeDTO();
+
+		employeeDTO.setId(id);
+	}
+
 	@Test
 	public void testUpload() throws Exception {
 
@@ -48,10 +69,34 @@ public class UserControllerTest {
 
 	}
 
-	public void add() throws Exception {
-
+	@Test
+	public void testGet() throws Exception {
 		this.mockMvc.perform(get("/users")).andExpect(status().isOk());
+	}
 
+	@Test
+	public void testGetUsersById() throws Exception {
+		this.mockMvc.perform(get("/users/" + id)).andExpect(status().isOk());
+	}
+
+	@Test
+	public void testPost() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper();
+		this.mockMvc.perform(
+				post("/users").contentType("application/json").content(objectMapper.writeValueAsBytes(employeeDTO)))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void testDeleteUserById() throws Exception {
+		this.mockMvc.perform(delete("/users/" + id)).andExpect(status().isOk());
+	}
+
+	@Test
+	public void testupdateUser() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper();
+		this.mockMvc.perform(put("/users/" + id).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(employeeDTO))).andExpect(status().isOk());
 	}
 
 }
