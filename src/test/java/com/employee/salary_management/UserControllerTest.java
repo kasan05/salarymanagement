@@ -1,7 +1,5 @@
 package com.employee.salary_management;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -19,15 +17,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.employee.salary_management.constant.ApiError;
 import com.employee.salary_management.controller.UserController;
 import com.employee.salary_management.dto.EmployeeDTO;
-import com.employee.salary_management.exception.ErrorResponse;
 import com.employee.salary_management.mapper.EmployeeMapper;
-import com.employee.salary_management.model.Employee;
 import com.employee.salary_management.service.CSVDataProcessingService;
 import com.employee.salary_management.service.EmployeeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
