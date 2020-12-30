@@ -9,7 +9,7 @@ public interface EmployeeService {
 
 	public EmployeeDTO findById(String id) throws ApiException;
 
-	public EmployeeDTO save(EmployeeDTO employeeDTO);
+	public EmployeeDTO save(EmployeeDTO employeeDTO) throws ApiException;
 
 	public List<EmployeeDTO> findAll(int offset, int limit, double minSalary, double maxSalary, String nameFilter,
 			String sortBy);

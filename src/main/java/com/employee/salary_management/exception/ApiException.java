@@ -1,6 +1,5 @@
 package com.employee.salary_management.exception;
 
-
 public class ApiException extends RuntimeException {
 
 	public ApiException() {

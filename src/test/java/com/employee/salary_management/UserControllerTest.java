@@ -77,7 +77,7 @@ public class UserControllerTest {
 		ObjectMapper objectMapper = new ObjectMapper();
 		this.mockMvc.perform(
 				post("/users").contentType("application/json").content(objectMapper.writeValueAsBytes(employeeDTO)))
-				.andExpect(status().isOk());
+				.andExpect(status().isCreated());
 	}
 
 	@Test

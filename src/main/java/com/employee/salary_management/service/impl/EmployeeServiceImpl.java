@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +13,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 
-import com.employee.salary_management.constant.ApiError;
+import com.employee.salary_management.constant.ApiMessage;
 import com.employee.salary_management.dto.EmployeeDTO;
 import com.employee.salary_management.exception.ApiException;
 import com.employee.salary_management.mapper.EmployeeMapper;
@@ -32,15 +31,24 @@ public class EmployeeServiceImpl implements EmployeeService {
 	private EmployeeMapper employeeMapper;
 
 	@Override
-	public EmployeeDTO save(EmployeeDTO employeeDTO) {
+	public EmployeeDTO save(EmployeeDTO employeeDTO) throws ApiException {
+		if (employeeRepository.existsById(employeeDTO.getId())) {
+			throw new ApiException(ApiMessage.EMPLOYEE_ID_ALREADY_EXISTS);
+		}
+
+		if (employeeRepository.findOneByLogin(employeeDTO.getLogin()).isPresent()) {
+			throw new ApiException(ApiMessage.EMPLOYEE_LOGIN_NOT_UNIQUE);
+		}
+
 		Employee employee = employeeMapper.employeeDTOToEmployee(employeeDTO);
+
 		return employeeMapper.employeeToEmployeeDTO(employeeRepository.save(employee));
 	}
 
 	@Override
 	public EmployeeDTO findById(String id) throws ApiException {
 		return employeeMapper.employeeToEmployeeDTO(
-				employeeRepository.findById(id).orElseThrow(() -> new ApiException(ApiError.NO_SUCH_EMPLOYEE)));
+				employeeRepository.findById(id).orElseThrow(() -> new ApiException(ApiMessage.NO_SUCH_EMPLOYEE)));
 	}
 
 	@Override
@@ -48,7 +56,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		if (employeeRepository.existsById(id)) {
 			employeeRepository.deleteById(id);
 		} else {
-			throw new ApiException(ApiError.NO_SUCH_EMPLOYEE);
+			throw new ApiException(ApiMessage.NO_SUCH_EMPLOYEE);
 		}
 
 	}
@@ -68,7 +76,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 		}
 
-		
 		PageRequest pageRequest = PageRequest.of(offset, limit);
 
 		if (!orders.isEmpty()) {
@@ -77,19 +84,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 		}
 
 		List<Employee> employeeList = employeeRepository.findAll(pageRequest).getContent();
-		
-		
-		
-		
-		if(Optional.ofNullable(nameFilter).isPresent()) {
-			employeeList = employeeList.stream()
-					.filter(e -> e.getSalary() < maxSalary && e.getSalary() >= minSalary)
-					.filter(e->e.getName().startsWith(nameFilter))
+
+		if (Optional.ofNullable(nameFilter).isPresent()) {
+			employeeList = employeeList.stream().filter(e -> e.getSalary() < maxSalary && e.getSalary() >= minSalary)
+					.filter(e -> e.getName().startsWith(nameFilter)).collect(Collectors.toList());
+		} else {
+			employeeList = employeeList.stream().filter(e -> e.getSalary() < maxSalary && e.getSalary() >= minSalary)
 					.collect(Collectors.toList());
-		}else {
-			employeeList = employeeList.stream()
-			.filter(e -> e.getSalary() < maxSalary && e.getSalary() >= minSalary)
-			.collect(Collectors.toList());
 		}
 
 		return employeeMapper.employeeListToEmployeeDTOList(employeeList);
@@ -100,11 +101,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 		String login = employeeDTO.getLogin();
 		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> new ApiException(ApiError.NO_SUCH_EMPLOYEE));
+				.orElseThrow(() -> new ApiException(ApiMessage.NO_SUCH_EMPLOYEE));
 
 		if (Optional.ofNullable(login).isPresent() && !employee.getLogin().equals(employeeDTO.getLogin())) {
 			if (employeeRepository.findOneByLogin(employeeDTO.getLogin()).isPresent()) {
-				throw new ApiException(ApiError.LOGIN_NOT_UNIQUE);
+				throw new ApiException(ApiMessage.LOGIN_NOT_UNIQUE);
 			}
 		}
 

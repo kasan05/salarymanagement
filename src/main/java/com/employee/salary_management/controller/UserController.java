@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.employee.salary_management.constant.ApiMessage;
+import com.employee.salary_management.constant.ApiResponse;
 import com.employee.salary_management.dto.EmployeeDTO;
 import com.employee.salary_management.exception.ApiException;
 import com.employee.salary_management.mapper.EmployeeMapper;
@@ -41,7 +43,7 @@ public class UserController {
 	@GetMapping
 	public ResponseEntity<List<EmployeeDTO>> getUsers(
 			@RequestParam(name = "offset", required = false, defaultValue = "0") int offset,
-			@RequestParam(name = "limit", required = false,defaultValue = "1") int limit,
+			@RequestParam(name = "limit", required = false, defaultValue = "1") int limit,
 			@RequestParam(name = "minSalary", required = false, defaultValue = "0") double minSalary,
 			@RequestParam(name = "maxSalary", required = false, defaultValue = "4000") double maxSalary,
 			@RequestParam(name = "nameFilter", required = false) String nameFilter,
@@ -60,20 +62,32 @@ public class UserController {
 	}
 
 	@PostMapping
-	public ResponseEntity<EmployeeDTO> createUser(@RequestBody EmployeeDTO employeeDTO) {
-		return new ResponseEntity<EmployeeDTO>(employeeService.save(employeeDTO), HttpStatus.OK);
+	public ResponseEntity<ApiResponse<EmployeeDTO>> createUser(@RequestBody EmployeeDTO employeeDTO)
+			throws ApiException {
+
+		ApiResponse<EmployeeDTO> apiResponse = new ApiResponse<EmployeeDTO>(ApiMessage.CREATION_SUCCESS,
+				employeeService.save(employeeDTO));
+		return new ResponseEntity<ApiResponse<EmployeeDTO>>(apiResponse, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteUserById(@PathVariable("id") String id) {
+	public ResponseEntity<ApiResponse<Void>> deleteUserById(@PathVariable("id") String id) {
+
+		ApiResponse<Void> apiResponse = new ApiResponse<Void>();
+		apiResponse.setMessage(ApiMessage.DELETION_SUCCESS);
 		employeeService.deleteById(id);
-		return new ResponseEntity<Void>(HttpStatus.OK);
+		return new ResponseEntity<ApiResponse<Void>>(apiResponse, HttpStatus.OK);
+
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<EmployeeDTO> updateUser(@PathVariable("id") String id, @RequestBody EmployeeDTO employeeDTO) {
+	public ResponseEntity<ApiResponse<EmployeeDTO>> updateUser(@PathVariable("id") String id,
+			@RequestBody EmployeeDTO employeeDTO) {
 		EmployeeDTO employeeDTO2 = employeeService.update(id, employeeDTO);
-		return new ResponseEntity<EmployeeDTO>(employeeDTO2, HttpStatus.OK);
+		ApiResponse<EmployeeDTO> apiResponse = new ApiResponse<EmployeeDTO>();
+		apiResponse.setMessage(ApiMessage.UPDATE_SUCCESS);
+		apiResponse.setResults(employeeDTO2);
+		return new ResponseEntity<ApiResponse<EmployeeDTO>>(apiResponse, HttpStatus.OK);
 	}
 
 	@PostMapping("/upload")

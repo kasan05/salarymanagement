@@ -17,7 +17,9 @@ public class EmployeeDTO {
 
 	private LocalDate startDate;
 
-	public EmployeeDTO() {}
+	public EmployeeDTO() {
+	}
+
 	public EmployeeDTO(String id, String login, String name, double salary, LocalDate startDate) {
 		super();
 		this.id = id;
