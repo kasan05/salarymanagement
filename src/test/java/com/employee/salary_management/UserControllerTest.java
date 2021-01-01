@@ -1,10 +1,12 @@
 package com.employee.salary_management;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.employee.salary_management.constant.ApiMessage;
 import com.employee.salary_management.controller.UserController;
 import com.employee.salary_management.dto.EmployeeDTO;
 import com.employee.salary_management.mapper.EmployeeMapper;
@@ -75,21 +78,25 @@ public class UserControllerTest {
 	@Test
 	public void testPost() throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
-		this.mockMvc.perform(
-				post("/users").contentType("application/json").content(objectMapper.writeValueAsBytes(employeeDTO)))
-				.andExpect(status().isCreated());
+		this.mockMvc
+				.perform(post("/users").contentType("application/json")
+						.content(objectMapper.writeValueAsBytes(employeeDTO)))
+				.andExpect(status().isCreated()).andExpect(jsonPath("message", is(ApiMessage.CREATION_SUCCESS)));
 	}
 
 	@Test
 	public void testDeleteUserById() throws Exception {
-		this.mockMvc.perform(delete("/users/" + id)).andExpect(status().isOk());
+		this.mockMvc.perform(delete("/users/" + id)).andExpect(status().isOk())
+				.andExpect(jsonPath("message", is(ApiMessage.DELETION_SUCCESS)));
 	}
 
 	@Test
 	public void testupdateUser() throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
-		this.mockMvc.perform(put("/users/" + id).contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(employeeDTO))).andExpect(status().isOk());
+		this.mockMvc
+				.perform(put("/users/" + id).contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsBytes(employeeDTO)))
+				.andExpect(status().isOk()).andExpect(jsonPath("message", is(ApiMessage.UPDATE_SUCCESS)));
 	}
 
 }

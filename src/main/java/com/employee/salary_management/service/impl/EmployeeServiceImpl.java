@@ -103,7 +103,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		Employee employee = employeeRepository.findById(id)
 				.orElseThrow(() -> new ApiException(ApiMessage.NO_SUCH_EMPLOYEE));
 
-		if (Optional.ofNullable(login).isPresent() && !employee.getLogin().equals(employeeDTO.getLogin())) {
+		if (Optional.ofNullable(login).isPresent() && login.equals(employee.getLogin())) {
 			if (employeeRepository.findOneByLogin(employeeDTO.getLogin()).isPresent()) {
 				throw new ApiException(ApiMessage.LOGIN_NOT_UNIQUE);
 			}
